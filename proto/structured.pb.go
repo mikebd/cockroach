@@ -257,9 +257,9 @@ func (m *TableDescriptor) GetNextIndexID() uint32 {
 }
 
 type CreateTableRequest struct {
-	RequestHeader    `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
-	Schema           TableSchema `protobuf:"bytes,2,opt,name=schema" json:"schema"`
-	XXX_unrecognized []byte      `json:"-"`
+	TableRequestHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	Schema             TableSchema `protobuf:"bytes,2,opt,name=schema" json:"schema"`
+	XXX_unrecognized   []byte      `json:"-"`
 }
 
 func (m *CreateTableRequest) Reset()         { *m = CreateTableRequest{} }
@@ -274,21 +274,14 @@ func (m *CreateTableRequest) GetSchema() TableSchema {
 }
 
 type CreateTableResponse struct {
-	Error            Error  `protobuf:"bytes,1,opt,name=error" json:"error"`
-	TableID          uint32 `protobuf:"varint,2,opt,name=table_id" json:"table_id"`
-	XXX_unrecognized []byte `json:"-"`
+	TableRequestHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
+	TableID            uint32 `protobuf:"varint,2,opt,name=table_id" json:"table_id"`
+	XXX_unrecognized   []byte `json:"-"`
 }
 
 func (m *CreateTableResponse) Reset()         { *m = CreateTableResponse{} }
 func (m *CreateTableResponse) String() string { return proto1.CompactTextString(m) }
 func (*CreateTableResponse) ProtoMessage()    {}
-
-func (m *CreateTableResponse) GetError() Error {
-	if m != nil {
-		return m.Error
-	}
-	return Error{}
-}
 
 func (m *CreateTableResponse) GetTableID() uint32 {
 	if m != nil {
@@ -642,38 +635,38 @@ func (m *ConditionalPutTableRowResponse) GetRow() ValueCollection {
 	return ValueCollection{}
 }
 
-// An IncrementTableRequest increments the value of the columns in row.
+// An IncrementTableRowRequest increments the value of the columns in row.
 // row can only contain the columns forming the index key and columns
 // of type integer. Incrementing by 0 is not a noop, and creates a zero value.
-type IncrementTableRequest struct {
+type IncrementTableRowRequest struct {
 	TableRequestHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
 	Row                ColumnCollection `protobuf:"bytes,2,opt,name=row" json:"row"`
 	XXX_unrecognized   []byte           `json:"-"`
 }
 
-func (m *IncrementTableRequest) Reset()         { *m = IncrementTableRequest{} }
-func (m *IncrementTableRequest) String() string { return proto1.CompactTextString(m) }
-func (*IncrementTableRequest) ProtoMessage()    {}
+func (m *IncrementTableRowRequest) Reset()         { *m = IncrementTableRowRequest{} }
+func (m *IncrementTableRowRequest) String() string { return proto1.CompactTextString(m) }
+func (*IncrementTableRowRequest) ProtoMessage()    {}
 
-func (m *IncrementTableRequest) GetRow() ColumnCollection {
+func (m *IncrementTableRowRequest) GetRow() ColumnCollection {
 	if m != nil {
 		return m.Row
 	}
 	return ColumnCollection{}
 }
 
-// An IncrementTableResponse returns the row with the new column values.
-type IncrementTableResponse struct {
+// An IncrementTablRowResponse returns the row with the new column values.
+type IncrementTableRowResponse struct {
 	TableResponseHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
 	Row                 ValueCollection `protobuf:"bytes,2,opt,name=row" json:"row"`
 	XXX_unrecognized    []byte          `json:"-"`
 }
 
-func (m *IncrementTableResponse) Reset()         { *m = IncrementTableResponse{} }
-func (m *IncrementTableResponse) String() string { return proto1.CompactTextString(m) }
-func (*IncrementTableResponse) ProtoMessage()    {}
+func (m *IncrementTableRowResponse) Reset()         { *m = IncrementTableRowResponse{} }
+func (m *IncrementTableRowResponse) String() string { return proto1.CompactTextString(m) }
+func (*IncrementTableRowResponse) ProtoMessage()    {}
 
-func (m *IncrementTableResponse) GetRow() ValueCollection {
+func (m *IncrementTableRowResponse) GetRow() ValueCollection {
 	if m != nil {
 		return m.Row
 	}
@@ -1801,7 +1794,7 @@ func (m *CreateTableRequest) Unmarshal(data []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field RequestHeader", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field TableRequestHeader", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -1819,7 +1812,7 @@ func (m *CreateTableRequest) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.RequestHeader.Unmarshal(data[index:postIndex]); err != nil {
+			if err := m.TableRequestHeader.Unmarshal(data[index:postIndex]); err != nil {
 				return err
 			}
 			index = postIndex
@@ -1892,7 +1885,7 @@ func (m *CreateTableResponse) Unmarshal(data []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Error", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field TableRequestHeader", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -1910,7 +1903,7 @@ func (m *CreateTableResponse) Unmarshal(data []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Error.Unmarshal(data[index:postIndex]); err != nil {
+			if err := m.TableRequestHeader.Unmarshal(data[index:postIndex]); err != nil {
 				return err
 			}
 			index = postIndex
@@ -3111,7 +3104,7 @@ func (m *ConditionalPutTableRowResponse) Unmarshal(data []byte) error {
 
 	return nil
 }
-func (m *IncrementTableRequest) Unmarshal(data []byte) error {
+func (m *IncrementTableRowRequest) Unmarshal(data []byte) error {
 	l := len(data)
 	index := 0
 	for index < l {
@@ -3202,7 +3195,7 @@ func (m *IncrementTableRequest) Unmarshal(data []byte) error {
 
 	return nil
 }
-func (m *IncrementTableResponse) Unmarshal(data []byte) error {
+func (m *IncrementTableRowResponse) Unmarshal(data []byte) error {
 	l := len(data)
 	index := 0
 	for index < l {
@@ -4780,7 +4773,7 @@ func (m *TableDescriptor) Size() (n int) {
 func (m *CreateTableRequest) Size() (n int) {
 	var l int
 	_ = l
-	l = m.RequestHeader.Size()
+	l = m.TableRequestHeader.Size()
 	n += 1 + l + sovStructured(uint64(l))
 	l = m.Schema.Size()
 	n += 1 + l + sovStructured(uint64(l))
@@ -4793,7 +4786,7 @@ func (m *CreateTableRequest) Size() (n int) {
 func (m *CreateTableResponse) Size() (n int) {
 	var l int
 	_ = l
-	l = m.Error.Size()
+	l = m.TableRequestHeader.Size()
 	n += 1 + l + sovStructured(uint64(l))
 	n += 1 + sovStructured(uint64(m.TableID))
 	if m.XXX_unrecognized != nil {
@@ -4981,7 +4974,7 @@ func (m *ConditionalPutTableRowResponse) Size() (n int) {
 	return n
 }
 
-func (m *IncrementTableRequest) Size() (n int) {
+func (m *IncrementTableRowRequest) Size() (n int) {
 	var l int
 	_ = l
 	l = m.TableRequestHeader.Size()
@@ -4994,7 +4987,7 @@ func (m *IncrementTableRequest) Size() (n int) {
 	return n
 }
 
-func (m *IncrementTableResponse) Size() (n int) {
+func (m *IncrementTableRowResponse) Size() (n int) {
 	var l int
 	_ = l
 	l = m.TableResponseHeader.Size()
@@ -5552,8 +5545,8 @@ func (m *CreateTableRequest) MarshalTo(data []byte) (n int, err error) {
 	_ = l
 	data[i] = 0xa
 	i++
-	i = encodeVarintStructured(data, i, uint64(m.RequestHeader.Size()))
-	n6, err := m.RequestHeader.MarshalTo(data[i:])
+	i = encodeVarintStructured(data, i, uint64(m.TableRequestHeader.Size()))
+	n6, err := m.TableRequestHeader.MarshalTo(data[i:])
 	if err != nil {
 		return 0, err
 	}
@@ -5589,8 +5582,8 @@ func (m *CreateTableResponse) MarshalTo(data []byte) (n int, err error) {
 	_ = l
 	data[i] = 0xa
 	i++
-	i = encodeVarintStructured(data, i, uint64(m.Error.Size()))
-	n8, err := m.Error.MarshalTo(data[i:])
+	i = encodeVarintStructured(data, i, uint64(m.TableRequestHeader.Size()))
+	n8, err := m.TableRequestHeader.MarshalTo(data[i:])
 	if err != nil {
 		return 0, err
 	}
@@ -6068,7 +6061,7 @@ func (m *ConditionalPutTableRowResponse) MarshalTo(data []byte) (n int, err erro
 	return i, nil
 }
 
-func (m *IncrementTableRequest) Marshal() (data []byte, err error) {
+func (m *IncrementTableRowRequest) Marshal() (data []byte, err error) {
 	size := m.Size()
 	data = make([]byte, size)
 	n, err := m.MarshalTo(data)
@@ -6078,7 +6071,7 @@ func (m *IncrementTableRequest) Marshal() (data []byte, err error) {
 	return data[:n], nil
 }
 
-func (m *IncrementTableRequest) MarshalTo(data []byte) (n int, err error) {
+func (m *IncrementTableRowRequest) MarshalTo(data []byte) (n int, err error) {
 	var i int
 	_ = i
 	var l int
@@ -6105,7 +6098,7 @@ func (m *IncrementTableRequest) MarshalTo(data []byte) (n int, err error) {
 	return i, nil
 }
 
-func (m *IncrementTableResponse) Marshal() (data []byte, err error) {
+func (m *IncrementTableRowResponse) Marshal() (data []byte, err error) {
 	size := m.Size()
 	data = make([]byte, size)
 	n, err := m.MarshalTo(data)
@@ -6115,7 +6108,7 @@ func (m *IncrementTableResponse) Marshal() (data []byte, err error) {
 	return data[:n], nil
 }
 
-func (m *IncrementTableResponse) MarshalTo(data []byte) (n int, err error) {
+func (m *IncrementTableRowResponse) MarshalTo(data []byte) (n int, err error) {
 	var i int
 	_ = i
 	var l int

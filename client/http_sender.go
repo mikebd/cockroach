@@ -40,6 +40,10 @@ const (
 	// KVDBEndpoint is the URL path prefix which accepts incoming
 	// HTTP requests for the KV API.
 	KVDBEndpoint = "/kv/db/"
+	// StructuredDBEndpoint is the URL path prefix which accepts incoming
+	// HTTP requests for the Structured API.
+	StructuredDBEndpoint = "/st/db/"
+
 	// StatusTooManyRequests indicates client should retry due to
 	// server having too many requests.
 	StatusTooManyRequests = 429

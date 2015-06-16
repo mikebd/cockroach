@@ -19,3 +19,4 @@ package proto
 
 //go:generate make all
 //go:generate stringer -type=Method
+//go:generate stringer -type=StructuredMethod

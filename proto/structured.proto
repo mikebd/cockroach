@@ -91,12 +91,12 @@ message TableDescriptor {
 }
 
 message CreateTableRequest {
-  optional RequestHeader header = 1 [(gogoproto.nullable) = false, (gogoproto.embed) = true];
+optional TableRequestHeader header = 1 [(gogoproto.nullable) = false, (gogoproto.embed) = true];
   optional TableSchema schema = 2 [(gogoproto.nullable) = false];
 }
 
 message CreateTableResponse {
-  optional Error error = 1 [(gogoproto.nullable) = false];
+  optional TableRequestHeader header = 1 [(gogoproto.nullable) = false, (gogoproto.embed) = true];
   optional uint32 table_id = 2 [(gogoproto.nullable) = false, (gogoproto.customname) = "TableID"];
 }
 
@@ -235,16 +235,16 @@ message ConditionalPutTableRowResponse {
   optional ValueCollection row = 2[(gogoproto.nullable) = false];
 }
 
-// An IncrementTableRequest increments the value of the columns in row.
+// An IncrementTableRowRequest increments the value of the columns in row.
 // row can only contain the columns forming the index key and columns
 // of type integer. Incrementing by 0 is not a noop, and creates a zero value.
-message IncrementTableRequest {
+message IncrementTableRowRequest {
   optional TableRequestHeader header = 1 [(gogoproto.nullable) = false, (gogoproto.embed) = true];
   optional ColumnCollection row = 2 [(gogoproto.nullable) = false];
 }
 
-// An IncrementTableResponse returns the row with the new column values.
-message IncrementTableResponse {
+// An IncrementTablRowResponse returns the row with the new column values.
+message IncrementTableRowResponse {
   optional TableResponseHeader header = 1 [(gogoproto.nullable) = false, (gogoproto.embed) = true];
   optional ValueCollection row = 2 [(gogoproto.nullable) = false];
 }

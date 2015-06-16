@@ -37,6 +37,7 @@ import (
 	"github.com/cockroachdb/cockroach/security"
 	"github.com/cockroachdb/cockroach/server/status"
 	"github.com/cockroachdb/cockroach/storage"
+	"github.com/cockroachdb/cockroach/structured"
 	"github.com/cockroachdb/cockroach/ts"
 	"github.com/cockroachdb/cockroach/util"
 	"github.com/cockroachdb/cockroach/util/hlc"
@@ -61,6 +62,7 @@ type Server struct {
 	gossip        *gossip.Gossip
 	db            *client.DB
 	kvDB          *kv.DBServer
+	structuredDB  *structured.DBServer
 	node          *Node
 	admin         *adminServer
 	status        *statusServer
@@ -120,6 +122,12 @@ func NewServer(ctx *Context, stopper *util.Stopper) (*Server, error) {
 	s.kvDB = kv.NewDBServer(sender)
 	if s.ctx.ExperimentalRPCServer {
 		if err = s.kvDB.RegisterRPC(s.rpc); err != nil {
+			return nil, err
+		}
+	}
+	s.structuredDB = structured.NewDBServer(sender)
+	if s.ctx.ExperimentalRPCServer {
+		if err = s.structuredDB.RegisterRPC(s.rpc); err != nil {
 			return nil, err
 		}
 	}
@@ -192,6 +200,7 @@ func (s *Server) initHTTP() {
 	s.mux.Handle(statusKeyPrefix, s.status)
 
 	s.mux.HandleFunc(kv.DBPrefix, s.authenticateRequest(s.kvDB))
+	s.mux.HandleFunc(structured.DBPrefix, s.authenticateRequest(s.structuredDB))
 	s.mux.HandleFunc(ts.URLPrefix, s.authenticateRequest(s.tsServer))
 }
 
