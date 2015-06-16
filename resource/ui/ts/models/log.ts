@@ -16,33 +16,41 @@ module Models {
      */
     export module Log {
         import promise = _mithril.MithrilPromise;
+        import property = _mithril.MithrilProperty;
 
         export interface LogResponseSet {
             d: Proto.LogEntry[]
         }
 
         export class Entries {
-            startTime = Utils.chainProp(this, <number>null);
-            endTime = Utils.chainProp(this, <number>null);
-            max = Utils.chainProp(this, <number>null);
-            level = Utils.chainProp(this, <string>null);
+            startTime = Utils.chainProp(this, <property<number>>null);
+            endTime = Utils.chainProp(this, <property<number>>null);
+            max = Utils.chainProp(this, <property<number>>null);
+            level = Utils.chainProp(this, <property<string>>null);
 
             private _url(): string {
                 var url = "/_status/local/log";
-                if (this.level() != null) {
-                    url += "/" + this.level();
+                if ((this.level() != null) && (this.level()() != null)) {
+                    url += "/" + this.level()();
                 }
                 url += "?";
-                if (this.startTime() != null) {
-                    url += "startTime=" + this.startTime().toString() + "&";
+                if ((this.startTime() != null) && (this.startTime()() != null)) {
+                    url += "startTime=" + this.startTime()().toString() + "&";
                 }
-                if (this.endTime() != null) {
-                    url += "entTime=" + this.endTime().toString() + "&";
+                if ((this.endTime() != null) && (this.endTime()() != null)) {
+                    url += "entTime=" + this.endTime()().toString() + "&";
                 }
-                if (this.max() != null) {
-                    url += "max=" + this.max().toString() + "&";
+                if ((this.max() != null) && (this.max()() != null)) {
+                    url += "max=" + this.max()().toString() + "&";
                 }
                 return url;
+            }
+
+            constructor() {
+                this.level(m.prop(Utils.Format.Severity(0)));
+                this.max(m.prop(<number>null));
+                this.startTime(m.prop(<number>null));
+                this.endTime(m.prop(<number>null));
             }
 
             private _innerQuery = () => {
@@ -59,11 +67,11 @@ module Models {
                     });
             })
 
-            public refresh() {
+            refresh = () => {
                 this._data.refresh();
             }
 
-            public result(): Proto.LogEntry[] {
+            result = () => {
                 return this._data.result();
             }
         }

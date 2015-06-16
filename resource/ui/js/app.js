@@ -536,6 +536,32 @@ var AdminViews;
         })(Page = Graph.Page || (Graph.Page = {}));
     })(Graph = AdminViews.Graph || (AdminViews.Graph = {}));
 })(AdminViews || (AdminViews = {}));
+// source: components/select.ts
+/// <reference path="../typings/mithriljs/mithril.d.ts" />
+// Author: Matt Tracy (matt@cockroachlabs.com)
+//
+var Components;
+(function (Components) {
+    var Select;
+    (function (Select) {
+        function controller(options) {
+            return options;
+        }
+        Select.controller = controller;
+        function view(ctrl) {
+            var onChangeFn = function (value) {
+                ctrl.selected(value);
+                ctrl.callback(value);
+            };
+            return m("select", { onchange: m.withAttr("value", onChangeFn) }, [
+                ctrl.items.map(function (item) {
+                    return m('option', { value: item.value }, item.text);
+                })
+            ]);
+        }
+        Select.view = view;
+    })(Select = Components.Select || (Components.Select = {}));
+})(Components || (Components = {}));
 // source: util/format.ts
 /// <reference path="../models/proto.ts" />
 /// <reference path="../util/convert.ts" />
@@ -626,29 +652,33 @@ var Models;
                         return results.d;
                     });
                 });
+                this.refresh = function () {
+                    _this._data.refresh();
+                };
+                this.result = function () {
+                    return _this._data.result();
+                };
+                this.level(m.prop(Utils.Format.Severity(0)));
+                this.max(m.prop(null));
+                this.startTime(m.prop(null));
+                this.endTime(m.prop(null));
             }
             Entries.prototype._url = function () {
                 var url = "/_status/local/log";
-                if (this.level() != null) {
-                    url += "/" + this.level();
+                if ((this.level() != null) && (this.level()() != null)) {
+                    url += "/" + this.level()();
                 }
                 url += "?";
-                if (this.startTime() != null) {
-                    url += "startTime=" + this.startTime().toString() + "&";
+                if ((this.startTime() != null) && (this.startTime()() != null)) {
+                    url += "startTime=" + this.startTime()().toString() + "&";
                 }
-                if (this.endTime() != null) {
-                    url += "entTime=" + this.endTime().toString() + "&";
+                if ((this.endTime() != null) && (this.endTime()() != null)) {
+                    url += "entTime=" + this.endTime()().toString() + "&";
                 }
-                if (this.max() != null) {
-                    url += "max=" + this.max().toString() + "&";
+                if ((this.max() != null) && (this.max()() != null)) {
+                    url += "max=" + this.max()().toString() + "&";
                 }
                 return url;
-            };
-            Entries.prototype.refresh = function () {
-                this._data.refresh();
-            };
-            Entries.prototype.result = function () {
-                return this._data.result();
             };
             return Entries;
         })();
@@ -659,9 +689,11 @@ var Models;
     })(Log = Models.Log || (Models.Log = {}));
 })(Models || (Models = {}));
 // source: pages/log.ts
+/// <reference path="../components/select.ts" />
 /// <reference path="../models/log.ts" />
 /// <reference path="../models/proto.ts" />
 /// <reference path="../typings/mithriljs/mithril.d.ts" />
+/// <reference path="../util/format.ts" />
 var AdminViews;
 (function (AdminViews) {
     var Log;
@@ -684,10 +716,12 @@ var AdminViews;
                 Controller._queryEveryMS = 10000;
                 return Controller;
             })();
+            ;
             function controller() {
                 return new Controller();
             }
             Page.controller = controller;
+            ;
             var _tableStyle = "border-collapse:collapse; border - spacing:0; border - color:#ccc";
             var _thStyle = "font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#ccc;color:#333;background-color:#efefef;text-align:center";
             var _tdStyleOddFirst = "font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#ccc;color:#333;background-color:#efefef;text-align:center";
@@ -718,6 +752,13 @@ var AdminViews;
                     m("td", { style: dstyle }, entry.method)
                 ]);
             }
+            ;
+            var _severitySelectOptions = [
+                { value: Utils.Format.Severity(0), text: Utils.Format.Severity(0) },
+                { value: Utils.Format.Severity(1), text: Utils.Format.Severity(1) },
+                { value: Utils.Format.Severity(2), text: Utils.Format.Severity(2) },
+                { value: Utils.Format.Severity(3), text: Utils.Format.Severity(3) },
+            ];
             function view(ctrl) {
                 var rows = [];
                 if (entries.result() != null) {
@@ -728,6 +769,13 @@ var AdminViews;
                     ;
                 }
                 return m("div", [
+                    m("p", [
+                        m.component(Components.Select, {
+                            items: _severitySelectOptions,
+                            selected: entries.level(),
+                            callback: entries.refresh
+                        })
+                    ]),
                     m("p", rows.length + " log entries retrieved"),
                     m("table", { style: _tableStyle }, [
                         m("tr", [
@@ -747,6 +795,7 @@ var AdminViews;
                 ]);
             }
             Page.view = view;
+            ;
         })(Page = Log.Page || (Log.Page = {}));
     })(Log = AdminViews.Log || (AdminViews.Log = {}));
 })(AdminViews || (AdminViews = {}));
