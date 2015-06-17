@@ -323,6 +323,36 @@ func TestMVCCUpdateExistingKeyDiffTxn(t *testing.T) {
 	}
 }
 
+// TestMVCCPutOutOfOrder tests a scenario where a put operation of an
+// older timestamp comes after a put operation of a newer timestamp.
+func TestMVCCPutOutOfOrder(t *testing.T) {
+	defer leaktest.AfterTest(t)
+	engine := createTestEngine()
+	defer engine.Close()
+
+	err := MVCCPut(engine, nil, testKey1, makeTS(3, 0), value1, txn1)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// This put operation will be ignored since the timestamp is
+	// older than the previous put.
+	err = MVCCPut(engine, nil, testKey1, makeTS(1, 0), value2, txn1)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	value, err := MVCCGet(engine, testKey1, makeTS(2, 0), true, txn1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Question(kaneda): What is the expected value here? The
+	// check currently fails since MVCCGet returns value1.
+	if !bytes.Equal(value.Bytes, value2.Bytes) {
+		t.Fatal("the value should be %s, but got %s", value2, value)
+	}
+}
+
 func TestMVCCGetNoMoreOldVersion(t *testing.T) {
 	defer leaktest.AfterTest(t)
 	// Need to handle the case here where the scan takes us to the

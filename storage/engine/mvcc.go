@@ -668,6 +668,9 @@ func mvccPutInternal(engine Engine, ms *proto.MVCCStats, key proto.Key, timestam
 			} else if txn.Epoch < meta.Txn.Epoch || timestamp.Less(meta.Timestamp) {
 				// Ignore old writes from the current transaction; it's just an
 				// RPC arriving out of order.
+
+				// Question(kaneda): Should we still write here since there might be a read
+				// whose timestmap is later than timestamp and earlier than meta.Timestamp?				
 				return nil
 			}
 
